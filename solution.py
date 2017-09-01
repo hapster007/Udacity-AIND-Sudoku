@@ -56,15 +56,15 @@ def naked_twins(values):
     for unit in unitlist:
         # Find all boxes with two digits remaining as possibilities
         pairs = [box for box in unit if len(values[box]) == 2]
-        # Pairwise combinations
+        # Find combinations
         poss_twins = [list(pair) for pair in itertools.combinations(pairs, 2)]
         for pair in poss_twins:
             box1 = pair[0]
             box2 = pair[1]
-            # Find the naked twins
+            # Find naked twins
             if values[box1] == values[box2]:
                 for box in unit:
-                    # Eliminate the naked twins as possibilities for peers
+                    # Eliminate pair of solutions for peers
                     if box != box1 and box != box2:
                         for digit in values[box1]:
                             values[box] = values[box].replace(digit,'')
