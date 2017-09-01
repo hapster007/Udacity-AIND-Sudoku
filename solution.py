@@ -1,52 +1,25 @@
 import itertools 
 
+# Create function to name the boxes
 def cross(A, B):
     "Cross product of elements in A and elements in B."
     return [s+t for s in A for t in B]
 
+# Create variables for defining the board
 rows = 'ABCDEFGHI'
 cols = '123456789'
 boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
-
 #add a unit for diagonals
 diagonal = [[rows[i] + cols[i] for i in range(9)], [rows[i] + cols[8-i] for i in range(9)]]
-    
 unitlist = row_units + column_units + square_units + diagonal
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
-assignments = []
-
-def assign_value(values, box, value):
-    """
-    Please use this function to update your values dictionary!
-    Assigns a value to a given box. If it updates the board record it.
-    """
-
-    #Don't waste memory appending actions that don't actually change any values
-    if values[box] == value:
-        return values
-
-    values[box] = value
-    if len(value) == 1:
-        assignments.append(values.copy())
-    return values
-
+# Create function to implement naked twins strategy
 def naked_twins(values):
-    """Eliminate values using the naked twins strategy.
-    Args:
-        values(dict): a dictionary of the form {'box_name': '123456789', ...}
-
-    Returns:
-        the values dictionary with the naked twins eliminated from peers.
-    """
-
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
-
     for unit in unitlist:
         # Find all boxes with two digits remaining as possibilities
         pairs = [box for box in unit if len(values[box]) == 2]
@@ -64,16 +37,8 @@ def naked_twins(values):
                             values[box] = values[box].replace(digit,'')
     return values
 
+# Create functon to assign the range of possible solutions to unsolved boxes
 def grid_values(grid):
-    """
-    Convert grid into a dict of {square: char} with '123456789' for empties.
-    Args:
-        grid(string) - A grid in string form.
-    Returns:
-        A grid in dictionary form
-            Keys: The boxes, e.g., 'A1'
-            Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
-    """
     values = []
     all_digits = '123456789'
     for c in grid:
@@ -84,12 +49,8 @@ def grid_values(grid):
     assert len(values) == 81
     return dict(zip(boxes, values))
 
+# Create function to visualize board
 def display(values):
-    """
-    Display the values as a 2-D grid.
-    Args:
-        values(dict): The sudoku in dictionary form
-    """
     width = 1+max(len(values[s]) for s in boxes)
     line = '+'.join(['-'*(width*3)]*3)
     for r in rows:
@@ -98,6 +59,7 @@ def display(values):
         if r in 'CF': print(line)
     return
 
+# Create function to rule out and remove possible solutions from boxes
 def eliminate(values):
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
     for box in solved_values:
@@ -106,6 +68,7 @@ def eliminate(values):
             values[peer] = values[peer].replace(digit,'')
     return values
 
+# Create function to implement only-choice strategy, i.e. assign correct solution when that is the only choice
 def only_choice(values):
     for unit in unitlist:
         for digit in '123456789':
@@ -114,6 +77,7 @@ def only_choice(values):
                 values[dplaces[0]] = digit
     return values
 
+# Create function to loop eliminate and only_choice functions until game is solved or there is no further improvement
 def reduce_puzzle(values):
     stalled = False
     while not stalled:
@@ -132,6 +96,7 @@ def reduce_puzzle(values):
             return False
     return values
 
+# Create function to implement search strategy
 def search(values):
     values = reduce_puzzle(values)
     if values is False:
@@ -148,6 +113,7 @@ def search(values):
         if attempt:
             return attempt
 
+# Create function to stop search function when game is solved        
 def solve(grid):
     """
     Find the solution to a Sudoku grid.
