@@ -12,15 +12,9 @@ column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 
 #add a unit for diagonals
-i = 0
-diagonal_1 = []
-diagonal_2 = []
-while i < 9:
-    diagonal_1.append(cross(rows[i],cols[i]))
-    diagonal_2.append(cross(rows[i],cols[8-i]))
-    i += 1
-
-unitlist = row_units + column_units + square_units + diagonal_1 + diagonal_2
+diagonal = [[rows[i] + cols[i] for i in range(9)], [rows[i] + cols[8-i] for i in range(9)]]
+    
+unitlist = row_units + column_units + square_units + diagonal
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
@@ -32,9 +26,9 @@ def assign_value(values, box, value):
     Assigns a value to a given box. If it updates the board record it.
     """
 
-    # Don't waste memory appending actions that don't actually change any values
-    #if values[box] == value:
-        #return values
+    #Don't waste memory appending actions that don't actually change any values
+    if values[box] == value:
+        return values
 
     values[box] = value
     if len(value) == 1:
@@ -163,6 +157,12 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
+    values = grid_values(grid)
+    solved = search(values)
+    if solved:
+        return solved
+    else:
+        return False
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
