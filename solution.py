@@ -1,3 +1,9 @@
+import itertools 
+
+def cross(A, B):
+    "Cross product of elements in A and elements in B."
+    return [s+t for s in A for t in B]
+
 rows = 'ABCDEFGHI'
 cols = '123456789'
 boxes = cross(rows, cols)
@@ -27,8 +33,8 @@ def assign_value(values, box, value):
     """
 
     # Don't waste memory appending actions that don't actually change any values
-    if values[box] == value:
-        return values
+    #if values[box] == value:
+        #return values
 
     values[box] = value
     if len(value) == 1:
@@ -47,9 +53,22 @@ def naked_twins(values):
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
 
-def cross(A, B):
-    "Cross product of elements in A and elements in B."
-    return [s+t for s in A for t in B]
+    for unit in unitlist:
+        # Find all boxes with two digits remaining as possibilities
+        pairs = [box for box in unit if len(values[box]) == 2]
+        # Pairwise combinations
+        poss_twins = [list(pair) for pair in itertools.combinations(pairs, 2)]
+        for pair in poss_twins:
+            box1 = pair[0]
+            box2 = pair[1]
+            # Find the naked twins
+            if values[box1] == values[box2]:
+                for box in unit:
+                    # Eliminate the naked twins as possibilities for peers
+                    if box != box1 and box != box2:
+                        for digit in values[box1]:
+                            values[box] = values[box].replace(digit,'')
+    return values
 
 def grid_values(grid):
     """
